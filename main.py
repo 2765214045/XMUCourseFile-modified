@@ -2,9 +2,8 @@ import requests as r
 from tqdm import tqdm
 import os
 
-from qrcodeLogin import get_session
-
-# from passwdLogin import get_session
+# from qrcodeLogin import get_session
+from passwdLogin import get_session
 
 
 headers = {

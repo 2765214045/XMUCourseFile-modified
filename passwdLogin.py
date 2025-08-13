@@ -107,13 +107,11 @@ data = {
 }
 
 
-headers["Referer"] = f"https://ids.xmu.edu.cn/authserver/login?service={service}"
-headers["Origin"] = "https://ids.xmu.edu.cn"
+# headers["Referer"] = f"https://ids.xmu.edu.cn/authserver/login?service={service}"
+# headers["Origin"] = "https://ids.xmu.edu.cn"
 url = f"https://ids.xmu.edu.cn/authserver/login?type=service={service}"
 
-res = session.post(
-    url, headers=headers, data=data, cookies=cookies, allow_redirects=True
-)
+res = session.post(url, headers=headers, data=data)
 
 result = r.utils.dict_from_cookiejar(res.cookies)
 
