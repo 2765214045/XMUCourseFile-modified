@@ -3,13 +3,15 @@ try:
     from tqdm import tqdm
     import os
     import keyboard
-
+    import time
+    from tabulate import tabulate
+    from wcwidth import wcwidth
     # from qrcodeLogin import get_session
     from passwdLogin import get_session
 
 except ImportError:
     import pip
-    pip.main(['install', 'requests','tqdm','keyboard'])
+    pip.main(['install', 'requests','tqdm','keyboard','tabulate','wcwidth'])
 
 #import
 
@@ -59,17 +61,39 @@ def while_get(url):
 
 os.system("md download >nul 2>nul")
 
-while 1:
-    id = None
-    while id is None:
-        url = input("请复制课程的链接：")
-        if url.startswith("https://lnt.xmu.edu.cn/course/"):
-            id = url.split("/")[4]
-            break
-        if id is None:
-            print("不是合法链接")
+session = get_session()
+print("登录成功")
+id = None
+course_l_n=[];p=0;course_l_id=[]
+data_c=while_get(f"https://lnt.xmu.edu.cn/api/my-courses").json()
+for k in data_c["courses"]:
+    course_l_n.append(k["name"])
+    course_l_id.append(k["id"])
+    p+=1
+#course
 
-    session = get_session()
+def get_display_width(s):
+    return sum(wcwidth(char) for char in s)
+max_name_width = max(get_display_width(name) for name in course_l_n)
+with open("courses.txt", "w", encoding="utf-8") as f:
+    header = f"{'序号':<5}{'课程名':<{max_name_width}}{'id':<10}\n"
+    print(header.strip())
+    f.write(header)
+    for i, (name, num) in enumerate(zip(course_l_n, course_l_id), start=1):
+        name_width = get_display_width(name)
+        padding = max_name_width - name_width
+        line = f"{i:<5}{name}{' ' * padding}\t{num:<10}\n"
+        f.write(line)
+        print(line.strip())
+#print and save
+q=0
+while(1):
+    id=course_l_id[int(input("请输入下载的课程序号："))-1]
+    if(q>=0):print("下载完成数量",{q},"，Ctrl+C 退出程序")
+
+    data_n=while_get(f"https://lnt.xmu.edu.cn/api/courses/{id}").json()
+    name_of_course=data_n["display_name"]
+    #name of course
 
     data = while_get(f"https://lnt.xmu.edu.cn/api/courses/{id}/activities").json()
 
@@ -81,8 +105,12 @@ while 1:
                 f"https://lnt.xmu.edu.cn/api/uploads/reference/{reference_id}/url"
             ).json()
             url = content["url"]
-            download(url, f"./download/{id}/{name}")
-    print("Ctrl + C 退出程序")
+            download(url, f"./download/{id}-{name_of_course}/{name}");q+=1
+
+
+
+
+
     #keyboard.wait('esc')
 
 

@@ -1,30 +1,27 @@
 # XMUCourseFile
-Forked from vintcessun
+xmu数字化教学平台课件下载脚本
+
+在原来的基础上修改，使之更懒人适用(bushi
 
 ## 使用教程
+打开终端(Terminal, Bash, Powershell, cmd)
 
-这个下载需要验证你的身份信息，如果介意请勿使用
+'git clone https://github.com/2765214045/XMUCourseFile-modified.git'
+将密码填入login.txt
 
-![image-20250316212631312](./README.assets/image-20250316212631312.png)
+运行
+'python main.py'
 
-第一个是课程的链接，可以打开其中之一界面，在脚本中只是检验了链接必须以：https://lnt.xmu.edu.cn/course开头即可
+按照显示说明操作即可，已经保存的课程副本在courses.txt内
 
-以下的两个照片显示了两种可以使用的链接：
+下载的课件在downloads内
 
-![image-20250316212836637](./README.assets/image-20250316212836638.png)
+### Notice
 
-![image-20250316213038373](./README.assets/image-20250316213038373.png)
+过于频繁会导致图形验证码出现，尚未处理。
 
-复制链接并输入后就会进入下一步
 
-![image-20250316213126773](./README.assets/image-20250316213126773.png)
+###
+Forked from vintcessun
+Modified by 2765
 
-可以就在课程停留的界面先按下F12，然后进入控制台或者Console，输入js并按下回车即可
-
-然后就会输出一行把这一行复制并输入即可
-
-![image-20250316213717338](./README.assets/image-20250316213717338.png)
-
-![image-20250316213359266](./README.assets/image-20250316213359266.png)
-
-然后下载就自动开始了，在download文件夹下即可看到所有下载内容了
