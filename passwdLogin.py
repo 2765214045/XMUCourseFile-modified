@@ -10,8 +10,8 @@ import base64
 #passwd = input("密码：")
 
 with open('login-test.txt', 'r') as file:
-    username = file.readline()
-    passwd = file.readline()
+    username = file.readline().rstrip("\n")
+    passwd = file.readline().rstrip("\n")
 
 
 regex1 = '<input[^>]*?name="execution"[^>]*?value="([^"]*)"[^>]*?>'

@@ -1,10 +1,17 @@
-import requests as r
-from tqdm import tqdm
-import os
+try:
+    import requests as r
+    from tqdm import tqdm
+    import os
+    import keyboard
 
-# from qrcodeLogin import get_session
-from passwdLogin import get_session
+    # from qrcodeLogin import get_session
+    from passwdLogin import get_session
 
+except ImportError:
+    import pip
+    pip.main(['install', 'requests','tqdm','keyboard'])
+
+#import
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
@@ -75,3 +82,8 @@ while 1:
             ).json()
             url = content["url"]
             download(url, f"./download/{id}/{name}")
+    print("Ctrl + C 退出程序")
+    #keyboard.wait('esc')
+
+
+
