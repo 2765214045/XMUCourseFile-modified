@@ -6,11 +6,11 @@ xmu数字化教学平台课件下载脚本
 ## 使用教程
 打开终端(Terminal, Bash, Powershell, cmd)  
   
-'git clone https://github.com/2765214045/XMUCourseFile-modified.git'  
+`git clone https://github.com/2765214045/XMUCourseFile-modified.git`  
 将密码填入login.txt  
   
 运行  
-'python main.py'  
+`python main.py`  
   
 按照显示说明操作即可，已经保存的课程副本在courses.txt内  
   
