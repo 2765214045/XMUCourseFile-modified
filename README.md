@@ -1,7 +1,7 @@
 # XMUCourseFile
 xmu数字化教学平台课件下载脚本  
   
-在原来的基础上修改，使之更懒人适用(bushi  
+在原来的基础上修改，使之更懒人适用  
   
 ## 使用教程
 打开终端(Terminal, Bash, Powershell, cmd)  
