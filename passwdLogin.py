@@ -6,8 +6,13 @@ import random
 from Crypto.Cipher import AES
 import base64
 
-username = input("学号：")
-passwd = input("密码：")
+#username = input("学号：")
+#passwd = input("密码：")
+
+with open('login-test.txt', 'r') as file:
+    username = file.readline()
+    passwd = file.readline()
+
 
 regex1 = '<input[^>]*?name="execution"[^>]*?value="([^"]*)"[^>]*?>'
 regex2 = '<input[^>]*?id="pwdEncryptSalt"[^>]*?value="([^"]*)"[^>]*?>'
