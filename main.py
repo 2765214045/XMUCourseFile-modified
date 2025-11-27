@@ -14,6 +14,12 @@ headers = {
 def download(url: str, fname: str):
     resp = r.get(url, stream=True)
     total = int(resp.headers.get("content-length", 0))
+
+    directory = os.path.dirname(fname)
+    if directory and not os.path.exists(directory):
+        print(f"目录 '{directory}' 不存在，正在创建...")
+        os.makedirs(directory, exist_ok=True)#create dir
+
     with open(fname, "wb") as file, tqdm(
         desc=fname.split("/")[-1],
         total=total,
@@ -46,25 +52,26 @@ def while_get(url):
 
 os.system("md download >nul 2>nul")
 
-id = None
-while id is None:
-    url = input("请复制课程的链接：")
-    if url.startswith("https://lnt.xmu.edu.cn/course/"):
-        id = url.split("/")[4]
-        break
-    if id is None:
-        print("不是合法链接")
+while 1:
+    id = None
+    while id is None:
+        url = input("请复制课程的链接：")
+        if url.startswith("https://lnt.xmu.edu.cn/course/"):
+            id = url.split("/")[4]
+            break
+        if id is None:
+            print("不是合法链接")
 
-session = get_session()
+    session = get_session()
 
-data = while_get(f"https://lnt.xmu.edu.cn/api/courses/{id}/activities").json()
+    data = while_get(f"https://lnt.xmu.edu.cn/api/courses/{id}/activities").json()
 
-for e in data["activities"]:
-    for i in e["uploads"]:
-        reference_id = i["reference_id"]
-        name = i["name"]
-        content = while_get(
-            f"https://lnt.xmu.edu.cn/api/uploads/reference/{reference_id}/url"
-        ).json()
-        url = content["url"]
-        download(url, f"./download/{name}")
+    for e in data["activities"]:
+        for i in e["uploads"]:
+            reference_id = i["reference_id"]
+            name = i["name"]
+            content = while_get(
+                f"https://lnt.xmu.edu.cn/api/uploads/reference/{reference_id}/url"
+            ).json()
+            url = content["url"]
+            download(url, f"./download/{id}/{name}")
