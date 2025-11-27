@@ -9,7 +9,7 @@ import base64
 #username = input("学号：")
 #passwd = input("密码：")
 
-with open('login-test.txt', 'r') as file:
+with open('login.txt', 'r') as file:
     username = file.readline().rstrip("\n")
     passwd = file.readline().rstrip("\n")
 
