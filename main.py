@@ -89,6 +89,8 @@ with open("courses.txt", "w", encoding="utf-8") as f:
 q=0
 while(1):
     id=course_l_id[int(input("请输入下载的课程序号："))-1]
+
+
     if(q>=0):print("下载完成数量",q,"，Ctrl+C 退出程序")
 
     data_n=while_get(f"https://lnt.xmu.edu.cn/api/courses/{id}").json()

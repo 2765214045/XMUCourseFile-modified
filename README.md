@@ -10,13 +10,18 @@ xmu数字化教学平台课件下载脚本
   
 将学号密码填入login.txt  
 第一行学号，第二行密码  
-  
+
+### 使用方法1
+
 运行  
 `python main.py`  
   
 按照显示说明填入序号即可，已经保存的课程副本在courses.txt内  
   
 下载的课件在downloads内  
+### 使用方法2
+已经运行一遍`python main.py`后，将要下载的课程序号填入文件d中，在powershell运行d.ps1     
+
   
 ### Notice  
   
@@ -28,6 +33,7 @@ xmu数字化教学平台课件下载脚本
 显示当前学期课程  
 图形验证码  
 包的自动下载安装（懒）  
+减少重复下载  
   
 Origin from vintcessun  
 Modified by 2765  
