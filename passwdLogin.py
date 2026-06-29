@@ -1,6 +1,5 @@
 import time
 import requests as r
-import os
 import re
 import random
 from Crypto.Cipher import AES
@@ -9,9 +8,21 @@ import base64
 #username = input("学号：")
 #passwd = input("密码：")
 
-with open('login-test.txt', 'r') as file:
-    username = file.readline().rstrip("\n")
-    passwd = file.readline().rstrip("\n")
+def load_credentials():
+    for candidate in ["login.txt", "login-test.txt"]:
+        try:
+            with open(candidate, "r", encoding="utf-8") as file:
+                username = file.readline().strip()
+                passwd = file.readline().strip()
+            if username and passwd:
+                return candidate, username, passwd
+        except FileNotFoundError:
+            continue
+
+    raise RuntimeError("未找到可用账号密码，请在 login.txt 或 login-test.txt 前两行填写学号和密码")
+
+
+login_file, username, passwd = load_credentials()
 
 
 regex1 = '<input[^>]*?name="execution"[^>]*?value="([^"]*)"[^>]*?>'
@@ -75,11 +86,11 @@ def while_get(url):
 
 
 captcha = while_get(
-    f"https://ids.xmu.edu.cn/authserver/checkNeedCaptcha.htl?username={username}_={int(time.time()*1000)}"
+    f"https://ids.xmu.edu.cn/authserver/checkNeedCaptcha.htl?username={username}&_={int(time.time()*1000)}"
 ).json()
 
 if captcha["isNeed"]:
-    raise ("账号被风控无法登录")
+    raise RuntimeError("账号被风控无法登录")
 
 url = while_get("https://lnt.xmu.edu.cn/").url
 service = url[url.find("service=") + 8 : :]
@@ -114,17 +125,16 @@ data = {
 
 # headers["Referer"] = f"https://ids.xmu.edu.cn/authserver/login?service={service}"
 # headers["Origin"] = "https://ids.xmu.edu.cn"
-url = f"https://ids.xmu.edu.cn/authserver/login?type=service={service}"
+url = f"https://ids.xmu.edu.cn/authserver/login?service={service}"
 
 res = session.post(url, headers=headers, data=data)
 
-result = r.utils.dict_from_cookiejar(res.cookies)
-
 
 def get_session():
-    if "session" in result:
-        return result["session"]
-    else:
-        print("没有获取到session，最后终止于：")
-        print(res.url)
-        raise
+    check = session.get("https://lnt.xmu.edu.cn/api/my-courses", headers=headers)
+    if check.ok and "ids.xmu.edu.cn/authserver" not in check.url:
+        return session
+
+    print("没有获取到有效登录会话，最后终止于：")
+    print(check.url)
+    raise RuntimeError("登录失败或会话无效")

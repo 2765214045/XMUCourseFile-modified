@@ -1,17 +1,11 @@
-try:
-    import requests as r
-    from tqdm import tqdm
-    import os
-    import keyboard
-    import time
-    from tabulate import tabulate
-    from wcwidth import wcwidth
-    # from qrcodeLogin import get_session
-    from passwdLogin import get_session
+import os
+import json
+import requests as r
+from tqdm import tqdm
+from wcwidth import wcwidth
 
-except ImportError:
-    import pip
-    pip.main(['install', 'requests','tqdm','keyboard','tabulate','wcwidth'])
+# from qrcodeLogin import get_session
+from passwdLogin import get_session
 
 #import
 
@@ -20,8 +14,16 @@ headers = {
 }
 
 
+def sanitize_filename(name: str) -> str:
+    # Replace characters that are invalid on Windows file systems.
+    for ch in '<>:"/\\|?*':
+        name = name.replace(ch, "_")
+    return name.strip()
+
+
 def download(url: str, fname: str):
-    resp = r.get(url, stream=True)
+    resp = r.get(url, stream=True, headers=headers, timeout=30)
+    resp.raise_for_status()
     total = int(resp.headers.get("content-length", 0))
 
     directory = os.path.dirname(fname)
@@ -44,7 +46,7 @@ def download(url: str, fname: str):
 def while_get(url):
     ret = None
     while True:
-        ret = r.get(url, cookies={"session": session}, headers=headers)
+        ret = session.get(url, headers=headers, timeout=30)
         if ret.ok:
             break
         else:
@@ -59,13 +61,17 @@ def while_get(url):
     return ret
 
 
+def response_json(resp):
+    # Some endpoints return UTF-8 BOM, which breaks requests.Response.json().
+    return json.loads(resp.text.lstrip("\ufeff"))
+
+
 os.system("md download >nul 2>nul")
 
 session = get_session()
 print("登录成功")
-id = None
 course_l_n=[];p=0;course_l_id=[]
-data_c=while_get(f"https://lnt.xmu.edu.cn/api/my-courses").json()
+data_c=response_json(while_get(f"https://lnt.xmu.edu.cn/api/my-courses"))
 for k in data_c["courses"]:
     course_l_n.append(k["name"])
     course_l_id.append(k["id"])
@@ -74,6 +80,10 @@ for k in data_c["courses"]:
 
 def get_display_width(s):
     return sum(wcwidth(char) for char in s)
+if not course_l_n:
+    print("未获取到课程列表，请确认账号权限或稍后重试。")
+    raise SystemExit(1)
+
 max_name_width = max(get_display_width(name) for name in course_l_n)
 with open("courses.txt", "w", encoding="utf-8") as f:
     header = f"{'序号':<5}{'课程名':<{max_name_width}}{'id':<10}\n"
@@ -88,26 +98,39 @@ with open("courses.txt", "w", encoding="utf-8") as f:
 #print and save
 q=0
 while(1):
-    id=course_l_id[int(input("请输入下载的课程序号："))-1]
+    choice = input("请输入下载的课程序号：").strip()
+    if not choice.isdigit():
+        print("输入无效，请输入数字序号。")
+        continue
+
+    course_index = int(choice) - 1
+    if course_index < 0 or course_index >= len(course_l_id):
+        print("序号超出范围，请重新输入。")
+        continue
+
+    course_id = course_l_id[course_index]
 
 
     if(q>=0):print("下载完成数量",q,"，Ctrl+C 退出程序")
 
-    data_n=while_get(f"https://lnt.xmu.edu.cn/api/courses/{id}").json()
+    data_n=response_json(while_get(f"https://lnt.xmu.edu.cn/api/courses/{course_id}"))
     name_of_course=data_n["display_name"]
+    safe_course_name = sanitize_filename(name_of_course)
     #name of course
 
-    data = while_get(f"https://lnt.xmu.edu.cn/api/courses/{id}/activities").json()
+    data = response_json(while_get(f"https://lnt.xmu.edu.cn/api/courses/{course_id}/activities"))
 
     for e in data["activities"]:
         for i in e["uploads"]:
             reference_id = i["reference_id"]
-            name = i["name"]
+            name = sanitize_filename(i["name"])
             content = while_get(
                 f"https://lnt.xmu.edu.cn/api/uploads/reference/{reference_id}/url"
-            ).json()
+            )
+            content = response_json(content)
             url = content["url"]
-            download(url, f"./download/{id}-{name_of_course}/{name}");q+=1
+            download(url, f"./download/{course_id}-{safe_course_name}/{name}")
+            q+=1
 
 
 
